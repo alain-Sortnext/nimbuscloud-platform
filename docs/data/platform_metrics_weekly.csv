@@ -1,13 +1,13 @@
-week,week_start,booking_api_p99_ms,booking_api_error_rate_pct,payment_api_p99_ms,payment_api_error_rate_pct,auth_service_p99_ms,auth_error_rate_pct,notification_queue_depth,sqs_messages_failed,pod_restarts_total,memory_usage_booking_pct,memory_usage_payment_pct,notes
-1,2026-03-02,142,0.3,198,0.2,88,0.1,4,0,0,41,38,Normal operations
-2,2026-03-09,156,0.4,203,0.3,91,0.1,6,1,0,43,40,Normal operations
-3,2026-03-16,149,0.2,195,0.2,85,0.1,3,0,0,42,39,Normal operations
-4,2026-03-23,163,0.5,211,0.4,94,0.2,8,1,1,45,41,Minor booking-api restart (unrelated)
-5,2026-03-30,158,0.3,207,0.3,90,0.1,5,0,0,44,40,Normal operations
-6,2026-04-06,171,0.6,219,0.5,96,0.2,12,2,0,47,43,Slight latency increase — no alert
-7,2026-04-13,189,0.8,238,0.7,103,0.3,18,3,0,52,48,Latency trending up — not noticed
-8,2026-04-20,214,1.2,267,1.1,118,0.4,31,7,1,61,57,Latency spike — auth restarts beginning
-9,2026-04-27,298,2.1,341,1.9,156,0.8,47,12,3,73,69,Significant degradation — no alert
-10,2026-05-04,187,0.9,241,0.8,112,0.3,28,6,1,58,54,Post-incident partial recovery
-11,2026-05-11,162,0.5,214,0.4,98,0.2,14,2,0,48,45,Improving
-12,2026-05-18,155,0.4,205,0.3,92,0.1,9,1,0,44,41,Approaching normal — monitoring still absent
+"week","week_start","booking_api_p99_ms","booking_api_error_rate_pct","payment_api_p99_ms","payment_api_error_rate_pct","auth_service_p99_ms","auth_error_rate_pct","notification_queue_depth","sqs_messages_failed","pod_restarts_total","memory_usage_booking_pct","memory_usage_payment_pct","notes"
+"1","2026-03-02","142","0.3","198","0.2","88","0.1","4","0","0","41","38","Normal operations"
+"2","2026-03-09","156","0.4","203","0.3","91","0.1","6","1","0","43","40","Normal operations"
+"3","2026-03-16","149","0.2","195","0.2","85","0.1","3","0","0","42","39","Normal operations"
+"4","2026-03-23","163","0.5","211","0.4","94","0.2","8","1","1","45","41","Minor booking-api restart (unrelated)"
+"5","2026-03-30","158","0.3","207","0.3","90","0.1","5","0","0","44","40","Normal operations"
+"6","2026-04-06","171","0.6","219","0.5","96","0.2","12","2","0","47","43","Slight latency increase - no alert"
+"7","2026-04-13","189","0.8","238","0.7","103","0.3","18","3","0","52","48","Latency trending up - not noticed"
+"8","2026-04-20","214","1.2","267","1.1","118","0.4","31","7","1","61","57","Latency spike - auth restarts beginning"
+"9","2026-04-27","298","2.1","341","1.9","156","0.8","47","12","3","73","69","Significant degradation - no alert"
+"10","2026-05-04","187","0.9","241","0.8","112","0.3","28","6","1","58","54","Post-incident partial recovery"
+"11","2026-05-11","162","0.5","214","0.4","98","0.2","14","2","0","48","45","Improving"
+"12","2026-05-18","155","0.4","205","0.3","92","0.1","9","1","0","44","41","Approaching normal - monitoring still absent"
