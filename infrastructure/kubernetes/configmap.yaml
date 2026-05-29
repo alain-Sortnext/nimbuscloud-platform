@@ -1,0 +1,28 @@
+# NimbusCloud Platform — ConfigMap
+# ⚠️ BUG: booking-api references key "DB_HOST" but this ConfigMap
+#         uses key "DATABASE_HOST" — pod will fail to start (CrashLoopBackOff)
+#         Fix: rename DATABASE_HOST → DB_HOST  OR update deployment.yaml reference
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nimbuscloud-config
+  namespace: default
+  labels:
+    app: nimbuscloud-platform
+    managed-by: kubectl
+data:
+  # ⚠️ BUG: booking-api deployment.yaml references "DB_HOST" but key here is "DATABASE_HOST"
+  DATABASE_HOST: "nimbuscloud-sessions.eu-west-2.amazonaws.com"
+  DATABASE_PORT: "8000"
+  AWS_REGION: "eu-west-2"
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "info"
+  S3_BUCKET: "nimbuscloud-platform-assets-prod"
+  SQS_QUEUE_NAME: "nimbuscloud-notifications-queue"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:3004"
+  AUTH_SERVICE_URL: "http://auth-service:3003"
+  BOOKING_API_URL: "http://booking-api:3001"
+  PAYMENT_API_URL: "http://payment-api:3002"
+  MAX_CONNECTIONS: "25"
+  CONNECTION_TIMEOUT_MS: "5000"
+  HEALTH_CHECK_PATH: "/healthz"

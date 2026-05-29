@@ -1,0 +1,14 @@
+service,resource_name,monthly_cost_gbp,daily_avg_gbp,utilisation_pct,rightsizing_recommendation,potential_saving_gbp,priority
+EC2,nimbuscloud-app-server-01,847,27.3,23,Downsize from m5.xlarge to m5.large — avg CPU 23%,312,HIGH
+EC2,nimbuscloud-app-server-02,847,27.3,21,Downsize from m5.xlarge to m5.large — avg CPU 21%,312,HIGH
+RDS,nimbuscloud-db-primary,1240,40.0,18,Downsize from db.r5.large to db.t3.medium — avg connections 12,490,HIGH
+RDS,nimbuscloud-db-replica,1240,40.0,15,Consider removing read replica — usage low,1240,MEDIUM
+S3,nimbuscloud-platform-assets-prod,34,1.1,N/A,Enable S3 Intelligent-Tiering — 68% objects not accessed in 30d,18,LOW
+S3,nimbuscloud-terraform-state-prod,8,0.3,N/A,No change needed,0,NONE
+DynamoDB,nimbuscloud-sessions,156,5.0,31,Switch to on-demand billing already enabled — no change,0,NONE
+Lambda,nimbuscloud-notification-dispatcher,12,0.4,N/A,No change needed,0,NONE
+SQS,nimbuscloud-notifications-queue,6,0.2,N/A,No change needed,0,NONE
+CloudWatch,platform-logs,89,2.9,N/A,Set log retention to 30d (currently unlimited) — saves ~£47/mo,47,MEDIUM
+NAT Gateway,nimbuscloud-nat-gw-a,124,4.0,N/A,Review if NAT Gateway needed — most traffic is outbound AWS API,0,LOW
+NAT Gateway,nimbuscloud-nat-gw-b,124,4.0,N/A,Review if second NAT Gateway needed for non-prod,124,MEDIUM
+Data Transfer,outbound-eu-west-2,67,2.2,N/A,Review large object transfers — potential Cloudfront optimisation,22,LOW

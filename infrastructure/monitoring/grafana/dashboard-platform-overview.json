@@ -1,0 +1,43 @@
+{
+  "__inputs": [],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "10.0.0"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    }
+  ],
+  "annotations": {
+    "list": []
+  },
+  "description": "NimbusCloud Platform Overview — INCOMPLETE — candidate must add panels",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["nimbuscloud", "platform", "overview"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "Europe/London",
+  "title": "NimbusCloud Platform Overview",
+  "uid": "nimbuscloud-overview",
+  "version": 0,
+  "__comment": "INCOMPLETE: panels array is empty. Candidate must add: API latency panel, error rate panel, pod health panel, SQS queue depth panel, DynamoDB read/write panel. See Phase 5 instructions."
+}

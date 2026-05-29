@@ -1,0 +1,44 @@
+# NimbusCloud Platform — Ingress
+# ⚠️ BUG: notification-service rule references port 3005 but service exposes 3004
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nimbuscloud-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+    - host: api.nimbuscloud.io
+      http:
+        paths:
+          - path: /api/v1/bookings
+            pathType: Prefix
+            backend:
+              service:
+                name: booking-api
+                port:
+                  number: 3001
+          - path: /api/v1/payments
+            pathType: Prefix
+            backend:
+              service:
+                name: payment-api
+                port:
+                  number: 3002
+          - path: /api/v1/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-service
+                port:
+                  number: 3003
+          # ⚠️ BUG: port 3005 does not exist — should be 3004
+          - path: /api/v1/notifications
+            pathType: Prefix
+            backend:
+              service:
+                name: notification-service
+                port:
+                  number: 3005    # ← WRONG — service exposes 3004

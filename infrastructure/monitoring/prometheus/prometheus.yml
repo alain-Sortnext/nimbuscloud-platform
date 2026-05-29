@@ -1,0 +1,38 @@
+# NimbusCloud Platform — Prometheus Configuration
+# ⚠️ BUG: scrape_configs is empty — Prometheus collects no metrics
+#    All services expose /metrics on their respective ports
+#    Candidate must add scrape targets for all four services
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: 'production'
+    region: 'eu-west-2'
+    platform: 'nimbuscloud'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093  # Not yet configured
+
+# Rules files — none loaded yet
+rule_files:
+  # - "alerts.yml"   # Candidate must create this
+
+# ⚠️ BUG: No scrape configs — Prometheus has no targets
+# Candidate must add:
+#   - booking-api on port 3001
+#   - payment-api on port 3002
+#   - auth-service on port 3003
+#   - notification-service on port 3004
+#   - prometheus self-scrape on port 9090
+scrape_configs:
+  []
+  # Example of what a correct scrape config looks like:
+  # - job_name: 'booking-api'
+  #   static_configs:
+  #     - targets: ['booking-api:3001']
+  #   metrics_path: '/metrics'
+  #   scrape_interval: 15s

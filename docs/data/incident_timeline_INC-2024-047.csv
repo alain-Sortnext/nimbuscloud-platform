@@ -1,0 +1,16 @@
+timestamp_utc,event_type,service,description,detected_by,action_taken
+2026-05-14 02:17:00,error_spike,booking-api,500 error rate exceeded 15% — 847 failed requests in 60s,none (no monitoring),none
+2026-05-14 02:19:00,error_spike,payment-api,500 error rate exceeded 12% — payment authorisations failing,none (no monitoring),none
+2026-05-14 02:23:00,queue_backlog,notification-service,SQS queue depth reached 1840 messages — dispatcher not processing,none (no monitoring),none
+2026-05-14 02:31:00,probe_failure,auth-service,readiness probe failing — pod marked NotReady,none (no monitoring),none
+2026-05-14 02:38:00,crashloop,booking-api,pod entered CrashLoopBackOff after OOMKill,none (no monitoring),none
+2026-05-14 02:41:00,crashloop,payment-api,pod entered CrashLoopBackOff,none (no monitoring),none
+2026-05-14 03:00:00,client_escalation,external,Meridian Finance operations notices booking failures,client phone call,none
+2026-05-14 03:04:00,client_escalation,external,Meridian Finance calls NimbusCloud emergency line,client phone call,emergency pager activated
+2026-05-14 03:09:00,on_call_response,ops,Jordan Reeves responds to page,pager,investigation begins
+2026-05-14 03:22:00,diagnosis,ops,Suspected memory exhaustion — kubectl describe shows OOMKilled,kubectl,pod restart initiated
+2026-05-14 03:24:00,remediation,booking-api,kubectl rollout restart deployment/booking-api,jordan.reeves,rollout restart
+2026-05-14 03:26:00,remediation,payment-api,kubectl rollout restart deployment/payment-api,jordan.reeves,rollout restart
+2026-05-14 03:30:00,recovery,booking-api,Pods back to Running — error rate dropping,kubectl get pods,monitoring
+2026-05-14 03:47:00,recovery,all_services,All services confirmed healthy,manual check,incident closed
+2026-05-14 03:52:00,communication,external,Meridian Finance updated — RCA to follow,email,post-mortem scheduled

@@ -1,0 +1,146 @@
+# NimbusCloud Platform — Docker Compose (local development)
+# Run: docker compose up --build
+# All services start on localhost with their respective ports
+
+version: "3.9"
+
+networks:
+  nimbuscloud-net:
+    driver: bridge
+
+volumes:
+  prometheus-data:
+  grafana-data:
+
+services:
+  # ─────────────────────────────────────────────
+  # Application Services
+  # ─────────────────────────────────────────────
+
+  booking-api:
+    build:
+      context: ./services/booking-api
+      dockerfile: Dockerfile
+    container_name: nimbuscloud-booking-api
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - AWS_REGION=${AWS_REGION:-eu-west-2}
+      - DYNAMODB_TABLE=${DYNAMODB_TABLE:-nimbuscloud-sessions}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - AUTH_SERVICE_URL=http://auth-service:3003
+    networks:
+      - nimbuscloud-net
+    depends_on:
+      - auth-service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  payment-api:
+    build:
+      context: ./services/payment-api
+      dockerfile: Dockerfile
+    container_name: nimbuscloud-payment-api
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - AWS_REGION=${AWS_REGION:-eu-west-2}
+      - STRIPE_API_KEY=${STRIPE_API_KEY:-sk_test_placeholder}
+      - SQS_QUEUE_URL=${SQS_QUEUE_URL:-}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    networks:
+      - nimbuscloud-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    container_name: nimbuscloud-auth-service
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - JWT_SECRET=${JWT_SECRET:-local-dev-jwt-secret-replace-in-production}
+      - JWT_EXPIRY=${JWT_EXPIRY:-3600}
+      - AWS_REGION=${AWS_REGION:-eu-west-2}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # ⚠️ SECURITY NOTE: DB_PASSWORD must NOT be set here in production
+      # In production: fetched from AWS Secrets Manager at startup
+      # In local dev only: use a dummy value
+      - DB_PASSWORD=${DB_PASSWORD:-local-dev-only-not-real}
+    networks:
+      - nimbuscloud-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  notification-service:
+    build:
+      context: ./services/notification-service
+      dockerfile: Dockerfile
+    container_name: nimbuscloud-notification-service
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - AWS_REGION=${AWS_REGION:-eu-west-2}
+      - SQS_QUEUE_URL=${SQS_QUEUE_URL:-}
+      - SES_FROM_ADDRESS=noreply@nimbuscloud.io
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    networks:
+      - nimbuscloud-net
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────
+  # Monitoring
+  # ─────────────────────────────────────────────
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: nimbuscloud-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infrastructure/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - nimbuscloud-net
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: nimbuscloud-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./infrastructure/monitoring/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
+    networks:
+      - nimbuscloud-net
+    depends_on:
+      - prometheus
+    restart: unless-stopped
