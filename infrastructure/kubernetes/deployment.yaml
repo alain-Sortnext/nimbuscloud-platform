@@ -33,13 +33,11 @@ spec:
           env:
             - name: PORT
               value: "3001"
-            # ⚠️ BUG: references key "DB_HOST" but ConfigMap has "DATABASE_HOST"
-            # This causes CrashLoopBackOff — pod starts then crashes immediately
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
                   name: nimbuscloud-config
-                  key: DB_HOST        # ← WRONG KEY — should be DATABASE_HOST
+                  key: DATABASE_HOST
             - name: AWS_REGION
               valueFrom:
                 configMapKeyRef:
@@ -101,17 +99,15 @@ spec:
           env:
             - name: PORT
               value: "3002"
-            # ⚠️ BUG: secret "payment-api-secrets" does not exist
-            # Pod will fail to start with: secret "payment-api-secrets" not found
             - name: STRIPE_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: payment-api-secrets   # ← SECRET DOES NOT EXIST
+                  name: payment-api-secrets
                   key: STRIPE_API_KEY
             - name: STRIPE_WEBHOOK_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: payment-api-secrets   # ← SECRET DOES NOT EXIST
+                  name: payment-api-secrets
                   key: STRIPE_WEBHOOK_SECRET
             - name: AWS_REGION
               valueFrom:
