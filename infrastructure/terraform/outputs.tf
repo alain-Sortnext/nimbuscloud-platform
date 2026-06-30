@@ -22,7 +22,7 @@ output "private_subnet_ids" {
 output "alb_dns_name" {
   description = "Application Load Balancer DNS name"
   # BUG: wrong resource name — was renamed from nimbuscloud_alb to main
-  value       = aws_lb.nimbuscloud_alb.dns_name
+  value       = aws_lb.main.dns_name
 }
 
 output "s3_bucket_name" {
