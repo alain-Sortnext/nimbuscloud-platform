@@ -39,7 +39,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: nimbuscloud-config
-                  key: DB_HOST        # ← WRONG KEY — should be DATABASE_HOST
+                  key: DATABASE_HOST        # ← WRONG KEY — should be DATABASE_HOST
             - name: AWS_REGION
               valueFrom:
                 configMapKeyRef:
