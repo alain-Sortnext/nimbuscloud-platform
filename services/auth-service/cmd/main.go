@@ -11,6 +11,10 @@ import (
 	"os"
 	"time"
 
+        "github.com/aws/aws-sdk-go-v2/aws"
+        "github.com/aws/aws-sdk-go-v2/config"
+        "github.com/aws/aws-sdk-go-v2/service/secretsmanager"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/prometheus/client_golang/prometheus"
@@ -63,6 +67,21 @@ func main() {
 	if jwtSecret == "" {
 		log.Fatal("JWT_SECRET not set — check Secrets Manager configuration")
 	}
+cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion("eu-west-2"))
+if err != nil {
+	log.Fatal(err)
+}
+
+smClient := secretsmanager.NewFromConfig(cfg)
+
+dbSecret, err := smClient.GetSecretValue(context.Background(), &secretsmanager.GetSecretValueInput{
+	SecretId: aws.String("nimbuscloud/auth-service/DB_PASSWORD"),
+})
+if err != nil {
+	log.Fatal(err)
+}
+
+_ = dbSecret
 
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
