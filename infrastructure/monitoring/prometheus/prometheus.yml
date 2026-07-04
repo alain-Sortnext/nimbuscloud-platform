@@ -28,11 +28,35 @@ rule_files:
 #   - auth-service on port 3003
 #   - notification-service on port 3004
 #   - prometheus self-scrape on port 9090
+
 scrape_configs:
-  []
-  # Example of what a correct scrape config looks like:
-  # - job_name: 'booking-api'
-  #   static_configs:
-  #     - targets: ['booking-api:3001']
-  #   metrics_path: '/metrics'
-  #   scrape_interval: 15s
+
+  - job_name: 'booking-api'
+    static_configs:
+      - targets: ['booking-api:3001']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  - job_name: 'payment-api'
+    static_configs:
+      - targets: ['payment-api:3002']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  - job_name: 'auth-service'
+    static_configs:
+      - targets: ['auth-service:3003']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  - job_name: 'notification-service'
+    static_configs:
+      - targets: ['notification-service:3004']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
