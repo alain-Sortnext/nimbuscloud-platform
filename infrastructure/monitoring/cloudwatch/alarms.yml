@@ -1,0 +1,24 @@
+cloudwatch_alarms:
+  - name: booking-api-p99-latency-high
+    metric: booking_api_p99_latency
+    threshold: 500ms
+    condition: greater_than
+    reason: Detects booking-api latency before customers report failures.
+
+  - name: payment-api-error-rate-high
+    metric: payment_api_error_rate
+    threshold: 1%
+    condition: greater_than
+    reason: Detects payment failures early.
+
+  - name: sqs-queue-depth-high
+    metric: sqs_queue_depth
+    threshold: 500
+    condition: greater_than
+    reason: Detects notification backlog.
+
+  - name: pod-restarts-high
+    metric: kubernetes_pod_restarts
+    threshold: 3 in 10 minutes
+    condition: greater_than
+    reason: Detects unstable pods or crash loops.

@@ -78,12 +78,21 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # ⚠️ SECURITY NOTE: DB_PASSWORD must NOT be set here in production
       # In production: fetched from AWS Secrets Manager at startup
-      # In local dev only: use a dummy value
-      - DB_PASSWORD=${DB_PASSWORD:-local-dev-only-not-real}
+      # In local dev only: use a dummy value                   
+      - DB_PASSWORD_SECRET_NAME=nimbuscloud/auth-service/DB_PASSWORD
+      - AWS_PROFILE=default
+      - AWS_SDK_LOAD_CONFIG=1
+
+    volumes:
+      - ~/.aws:/root/.aws:ro
+
     networks:
       - nimbuscloud-net
+
     restart: unless-stopped
+   
     healthcheck:
+
       test: ["CMD", "curl", "-f", "http://localhost:3003/healthz"]
       interval: 30s
       timeout: 10s
