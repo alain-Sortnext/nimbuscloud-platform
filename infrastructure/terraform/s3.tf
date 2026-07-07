@@ -15,10 +15,10 @@ resource "aws_s3_bucket" "assets" {
 
 # ⚠️ BUG: public-read ACL on a bucket containing client data
 # This must be removed and replaced with private + bucket policy
-resource "aws_s3_bucket_acl" "assets_acl" {
-  bucket = aws_s3_bucket.assets.id
-  acl    = "public-read"    # WRONG — must be "private"
-}
+# resource "aws_s3_bucket_acl" "assets_acl" {
+#   bucket = aws_s3_bucket.assets.id
+#   acl    = "public-read"    # WRONG — must be "private"
+# }
 
 # Versioning — enabled (good)
 resource "aws_s3_bucket_versioning" "assets" {
