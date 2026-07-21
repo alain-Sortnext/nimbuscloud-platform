@@ -1,7 +1,6 @@
 # NimbusCloud Platform — Prometheus Configuration
-# ⚠️ BUG: scrape_configs is empty — Prometheus collects no metrics
-#    All services expose /metrics on their respective ports
-#    Candidate must add scrape targets for all four services
+# ✅ FIXED: All 5 scrape targets configured
+
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
@@ -14,25 +13,94 @@ global:
 alerting:
   alertmanagers:
     - static_configs:
-        - targets:
-          # - alertmanager:9093  # Not yet configured
+        - targets: []
 
-# Rules files — none loaded yet
-rule_files:
-  # - "alerts.yml"   # Candidate must create this
+# Rules files
+rule_files: []
 
-# ⚠️ BUG: No scrape configs — Prometheus has no targets
-# Candidate must add:
-#   - booking-api on port 3001
-#   - payment-api on port 3002
-#   - auth-service on port 3003
-#   - notification-service on port 3004
-#   - prometheus self-scrape on port 9090
+# ==========================================
+# SCRAPE CONFIGURATIONS — 5 TARGETS
+# ==========================================
 scrape_configs:
-  []
-  # Example of what a correct scrape config looks like:
-  # - job_name: 'booking-api'
-  #   static_configs:
-  #     - targets: ['booking-api:3001']
-  #   metrics_path: '/metrics'
-  #   scrape_interval: 15s
+  # TARGET 1: Prometheus Self-Scrape (Port 9090)
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 10s
+    metrics_path: /metrics
+
+  # TARGET 2: Auth Service (Port 3003)
+  - job_name: 'auth-service'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names: ['default']
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: keep
+        regex: auth-service
+      - source_labels: [__meta_kubernetes_pod_container_port_number]
+        action: keep
+        regex: '3003'
+      - source_labels: [__meta_kubernetes_pod_ip]
+        target_label: __address__
+        replacement: $1:3003
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # TARGET 3: Booking API (Port 3001)
+  - job_name: 'booking-api'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names: ['default']
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: keep
+        regex: booking-api
+      - source_labels: [__meta_kubernetes_pod_container_port_number]
+        action: keep
+        regex: '3001'
+      - source_labels: [__meta_kubernetes_pod_ip]
+        target_label: __address__
+        replacement: $1:3001
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # TARGET 4: Payment API (Port 3002)
+  - job_name: 'payment-api'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names: ['default']
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: keep
+        regex: payment-api
+      - source_labels: [__meta_kubernetes_pod_container_port_number]
+        action: keep
+        regex: '3002'
+      - source_labels: [__meta_kubernetes_pod_ip]
+        target_label: __address__
+        replacement: $1:3002
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # TARGET 5: Notification Service (Port 3004)
+  - job_name: 'notification-service'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names: ['default']
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: keep
+        regex: notification-service
+      - source_labels: [__meta_kubernetes_pod_container_port_number]
+        action: keep
+        regex: '3004'
+      - source_labels: [__meta_kubernetes_pod_ip]
+        target_label: __address__
+        replacement: $1:3004
+    metrics_path: /metrics
+    scrape_interval: 15s

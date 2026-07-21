@@ -36,19 +36,51 @@ resource "aws_iam_role_policy" "platform_policy" {
   name = "nimbuscloud-platform-policy"
   role = aws_iam_role.platform_role.id
 
-  # BUG: Wildcard permissions — must be replaced with specific actions
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = "*"
-        Resource = "*"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject"
+        ]
+        Resource = "arn:aws:s3:::nimbuscloud-platform-assets-${var.bucket_suffix}/*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:Query",
+          "dynamodb:Scan",
+          "dynamodb:UpdateItem"
+        ]
+        Resource = "arn:aws:dynamodb:${var.aws_region}:*:table/nimbuscloud-sessions"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "sqs:SendMessage",
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes"
+        ]
+        Resource = "arn:aws:sqs:${var.aws_region}:*:nimbuscloud-notifications-queue"
+      },
+      {
+        Effect = "Allow"
+        Action = "lambda:InvokeFunction"
+        Resource = "arn:aws:lambda:${var.aws_region}:*:function:nimbuscloud-notification-dispatcher"
+      },
+      {
+        Effect = "Allow"
+        Action = "secretsmanager:GetSecretValue"
+        Resource = "arn:aws:secretsmanager:${var.aws_region}:*:secret:nimbuscloud/db-password-*"
       }
     ]
   })
 }
-
 # ─────────────────────────────────────────────
 # IAM Role — Lambda Execution
 # ─────────────────────────────────────────────

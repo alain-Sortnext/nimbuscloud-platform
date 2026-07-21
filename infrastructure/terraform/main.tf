@@ -134,7 +134,7 @@ resource "aws_route_table_association" "public_b" {
 
 resource "aws_security_group" "alb" {
   name        = "nimbuscloud-alb-sg"
-  description = "ALB — inbound from internet"
+  description = "ALB - inbound from internet"
   vpc_id      = aws_vpc.main.id
 
   ingress {
@@ -167,7 +167,7 @@ resource "aws_security_group" "alb" {
 
 resource "aws_security_group" "app" {
   name        = "nimbuscloud-app-sg"
-  description = "App tier — inbound from ALB only"
+  description = "App tier - inbound from ALB only"
   vpc_id      = aws_vpc.main.id
 
   ingress {

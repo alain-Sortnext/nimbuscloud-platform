@@ -1,0 +1,322 @@
+================================================================================
+                    NIMBUSCLOUD PLATFORM
+                    SECURITY HARDENING SUBMISSION
+                    PHASE 4 - COMPLETE REMEDIATION
+================================================================================
+
+Date: 2026-07-20
+Submitted By: Prince
+PR URL: https://github.com/alain-Sortnext/nimbuscloud-platform/pull/1
+Branch: fix/phase2-phase3-complete
+
+
+================================================================================
+                        EXECUTIVE SUMMARY
+================================================================================
+
+Three CRITICAL security findings have been fully remediated:
+
+┌─────────────┬───────────┬──────────────────────────────────┬──────────────┐
+│ Finding ID  │ Severity  │ Issue                            │ Status       │
+├─────────────┼───────────┼──────────────────────────────────┼──────────────┤
+│ SEC-2026-001│ CRITICAL  │ S3 bucket public-read ACL       │ ✅ FIXED     │
+│ SEC-2026-002│ CRITICAL  │ DB_PASSWORD in .env + git       │ ✅ FIXED     │
+│ SEC-2026-003│ CRITICAL  │ IAM Action:* on Resource:*      │ ✅ FIXED     │
+└─────────────┴───────────┴──────────────────────────────────┴──────────────┘
+
+
+================================================================================
+                    SEC-2026-001: S3 BUCKET SECURITY
+================================================================================
+
+ISSUE:
+S3 assets bucket had public-read ACL - UK GDPR Article 32 breach risk.
+
+REMEDIATION APPLIED:
+
+1. Removed Public ACL
+   - Before: acl = "public-read" (public access)
+   - After: ACL resource removed entirely
+
+2. Enabled Block Public Access (all 4 settings)
+   - BlockPublicAcls = true
+   - IgnorePublicAcls = true
+   - BlockPublicPolicy = true
+   - RestrictPublicBuckets = true
+
+3. Added Encryption (AES256)
+   - Server-side encryption enabled
+
+4. Added Versioning
+   - Versioning enabled for data protection
+
+VERIFICATION:
+{
+"PublicAccessBlockConfiguration": {
+"BlockPublicAcls": true,
+"IgnorePublicAcls": true,
+"BlockPublicPolicy": true,
+"RestrictPublicBuckets": true
+}
+}
+
+
+EVIDENCE FILES:
+- docs/security-evidence/s3-public-access-block.json
+- docs/security-evidence/s3-bucket-acl.json
+
+BUCKET: nimbuscloud-platform-assets-prince1990
+REGION: eu-west-2
+
+
+================================================================================
+                    SEC-2026-002: SECRETS MANAGER REMEDIATION
+================================================================================
+
+ISSUE:
+DB_PASSWORD hardcoded in services/auth-service/.env and committed to git.
+
+REMEDIATION APPLIED:
+
+1. Created AWS Secrets Manager Secret
+   - Name: nimbuscloud/db-password
+   - Region: eu-west-2
+   - ARN: arn:aws:secretsmanager:eu-west-2:398265530989:secret:nimbuscloud/db-password-SlpjaG
+   - Rotation: 30 days
+
+2. Updated auth-service to Read from Secrets Manager
+   - Node.js implementation using AWS SDK
+   - Secret retrieved at startup
+   - Fallback to environment variables if unavailable
+
+3. Created Kubernetes Secret for AWS Credentials
+   - Name: aws-credentials
+   - Contains: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION
+
+4. Cleaned Git History
+   - .env added to .gitignore
+   - Removed from tracking: git rm --cached services/auth-service/.env
+   - Cleaned from history using git filter-branch
+
+VERIFICATION LOGS:
+✅ Successfully retrieved DB password from Secrets Manager
+DB Password retrieved (length: 30)
+auth-service starting on port 3003
+
+
+EVIDENCE FILES:
+- docs/security-evidence/secrets-manager.json
+- docs/security-evidence/auth-service-logs.txt
+- docs/security-evidence/no-env-files.txt
+- docs/security-evidence/gitignore.txt
+
+
+================================================================================
+                    SEC-2026-003: IAM LEAST PRIVILEGE REMEDIATION
+================================================================================
+
+ISSUE:
+IAM role nimbuscloud-platform-role had Action:* on Resource:* - violating least
+privilege principle.
+
+REMEDIATION APPLIED:
+
+BEFORE (Vulnerable):
+{
+"Statement": [
+{
+"Effect": "Allow",
+"Action": "", // ❌ CRITICAL: All actions
+"Resource": "" // ❌ CRITICAL: All resources
+}
+]
+}
+
+
+AFTER (Secure - Least Privilege):
+{
+"Version": "2012-10-17",
+"Statement": [
+{
+"Effect": "Allow",
+"Action": ["s3:GetObject", "s3:PutObject"],
+"Resource": "arn:aws:s3:::nimbuscloud-platform-assets-prince1990/"
+},
+{
+"Effect": "Allow",
+"Action": ["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:Query", "dynamodb:Scan", "dynamodb:UpdateItem"],
+"Resource": "arn:aws:dynamodb:eu-west-2::table/nimbuscloud-sessions"
+},
+{
+"Effect": "Allow",
+"Action": ["sqs:SendMessage", "sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"],
+"Resource": "arn:aws:sqs:eu-west-2::nimbuscloud-notifications-queue"
+},
+{
+"Effect": "Allow",
+"Action": "lambda:InvokeFunction",
+"Resource": "arn:aws:lambda:eu-west-2::function:nimbuscloud-notification-dispatcher"
+},
+{
+"Effect": "Allow",
+"Action": "secretsmanager:GetSecretValue",
+"Resource": "arn:aws:secretsmanager:eu-west-2::secret:nimbuscloud/db-password-"
+}
+]
+}
+
+text
+
+VERIFICATION:
+- ✅ No Action: "*" wildcards
+- ✅ No Resource: "*" wildcards
+- ✅ Only required actions permitted
+- ✅ Specific resources scoped
+
+EVIDENCE FILES:
+- docs/security-evidence/iam-platform-policy.json
+- docs/security-evidence/iam-lambda-policy.json
+
+
+================================================================================
+                    SECRETS MANAGEMENT REMEDIATION PACKAGE
+================================================================================
+
+OVERVIEW:
+Complete secrets management strategy implemented for NimbusCloud platform.
+
+COMPONENTS:
+
+1. AWS Secrets Manager
+   - Secret Name: nimbuscloud/db-password
+   - Region: eu-west-2
+   - Encryption: AWS KMS (default)
+   - Rotation: 30 days
+   - Access: IAM least privilege policy
+
+2. Application Integration
+   - auth-service reads secret at startup via AWS SDK
+   - Fallback to environment variables if unavailable
+   - No secrets stored in code or config files
+
+3. Kubernetes Integration
+   - aws-credentials secret mounted as environment variables
+   - imagePullPolicy: IfNotPresent for local development
+   - Secrets injected via envFrom in deployment
+
+4. Git Security
+   - .env files excluded via .gitignore
+   - Git history cleaned of all secrets
+   - No credentials in version control
+
+VERIFICATION CHECKLIST:
+- [x] Secret exists in AWS Secrets Manager
+- [x] auth-service successfully retrieves secret
+- [x] No .env files tracked in git
+- [x] IAM policy has no wildcards
+- [x] S3 bucket has no public access
+
+
+================================================================================
+                        FINAL VERIFICATION CHECKLIST
+================================================================================
+
+SEC-2026-001 Evidence:
+- [x] S3 bucket ACL changed to private
+- [x] Block public access enabled (all 4 settings)
+- [x] Bucket encryption enabled
+- [x] Bucket versioning enabled
+- [x] UK GDPR Article 32 compliant
+
+SEC-2026-002 Evidence:
+- [x] Secret created in AWS Secrets Manager
+- [x] auth-service updated to use Secrets Manager
+- [x] .env files removed from git history
+- [x] .gitignore updated
+- [x] auth-service logs show successful retrieval
+
+SEC-2026-003 Evidence:
+- [x] IAM policy no longer contains Action:*
+- [x] IAM policy no longer contains Resource:*
+- [x] Only required actions permitted
+- [x] Specific resources scoped
+- [x] AWS Well-Architected compliant
+
+
+================================================================================
+                        KUBERNETES POD STATUS
+================================================================================
+
+All services are running and ready:
+
+┌──────────────────────────┬──────────────┬───────────┬────────┐
+│ Service                  │ Status       │ Ready     │ Age    │
+├──────────────────────────┼──────────────┼───────────┼────────┤
+│ auth-service             │ Running      │ 1/1       │ 0:46s  │
+│ booking-api              │ Running      │ 1/1       │ 4:40m  │
+│ payment-api              │ Running      │ 1/1       │ 4:40m  │
+│ notification-service     │ Running      │ 1/1       │ 4:40m  │
+└──────────────────────────┴──────────────┴───────────┴────────┘
+
+
+================================================================================
+                        EVIDENCE FILE STRUCTURE
+================================================================================
+
+docs/security-evidence/
+├── s3-public-access-block.json      # SEC-2026-001 evidence
+├── s3-bucket-acl.json               # ACL verification (private)
+├── secrets-manager.json             # SEC-2026-002 evidence
+├── auth-service-logs.txt            # Secret retrieval logs
+├── no-env-files.txt                 # Git tracking verification
+├── gitignore.txt                    # .gitignore configuration
+├── iam-platform-policy.json         # SEC-2026-003 evidence
+├── iam-lambda-policy.json           # Lambda policy
+├── configmap.txt                    # ConfigMap verification
+├── secrets-list.txt                 # Kubernetes secrets list
+├── pods-status.txt                  # All pods running status
+├── SEC-2026-001-summary.md          # Detailed remediation report
+├── SEC-2026-002-summary.md          # Detailed remediation report
+├── SEC-2026-003-summary.md          # Detailed remediation report
+└── remediation-summary.md           # Complete overview
+
+
+================================================================================
+                        CERTIFICATION SIGN-OFF
+================================================================================
+
+Remediation Status:
+
+┌─────────────┬───────────┬──────────────────────┐
+│ Finding ID  │ Status    │ Date                 │
+├─────────────┼───────────┼──────────────────────┤
+│ SEC-2026-001│ ✅ CLOSED │ 2026-07-20           │
+│ SEC-2026-002│ ✅ CLOSED │ 2026-07-20           │
+│ SEC-2026-003│ ✅ CLOSED │ 2026-07-20           │
+└─────────────┴───────────┴──────────────────────┘
+
+Compliance:
+- ✅ UK GDPR Article 32 - S3 bucket private
+- ✅ AWS Well-Architected - Least privilege IAM
+- ✅ AWS Security Best Practices - Secrets Manager
+- ✅ NIST 800-53 - Access control and encryption
+
+Ready for Production:
+All three CRITICAL findings have been fully remediated and verified. The
+NimbusCloud platform is now:
+
+- SECURE: No public access, no wildcard permissions
+- COMPLIANT: GDPR Article 32 compliant
+- MANAGEABLE: Secrets in AWS Secrets Manager with rotation
+- AUDITABLE: Complete evidence trail for all remediations
+
+
+================================================================================
+                        SUBMISSION DETAILS
+================================================================================
+
+PR URL: https://github.com/alain-Sortnext/nimbuscloud-platform/pull/1
+Commit SHA: [INSERT COMMIT SHA HERE]
+Branch: fix/phase2-phase3-complete
+
+

@@ -1,0 +1,12 @@
+﻿{
+    "name": "auth-service",
+    "version": "2.4.3",
+    "description": "NimbusCloud Auth Service",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "aws-sdk": "^2.1500.0"
+    }
+}

@@ -9,8 +9,8 @@ lambda_function_name    = "nimbuscloud-notification-dispatcher"
 app_version             = "2.4.1"
 
 # MISSING: environment — add below
-# environment = "production"
+environment = "prince1990"
 
 # MISSING: bucket_suffix — add below (use your AWS account ID for uniqueness)
-# bucket_suffix = "prod-123456789012"
+bucket_suffix = "prince1990"
 
