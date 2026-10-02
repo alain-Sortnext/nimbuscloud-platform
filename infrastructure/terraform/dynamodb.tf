@@ -1,10 +1,10 @@
 # NimbusCloud Platform — DynamoDB Configuration
 
 resource "aws_dynamodb_table" "sessions" {
-  name           = var.dynamodb_table_name
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "session_id"
-  range_key      = "user_id"
+  name         = var.dynamodb_table_name
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "session_id"
+  range_key    = "user_id"
 
   attribute {
     name = "session_id"

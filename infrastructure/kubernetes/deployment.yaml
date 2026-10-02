@@ -39,7 +39,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: nimbuscloud-config
-                  key: DB_HOST        # ← WRONG KEY — should be DATABASE_HOST
+                  key: DATABASE_HOST        # ← WRONG KEY — should be DATABASE_HOST
             - name: AWS_REGION
               valueFrom:
                 configMapKeyRef:
@@ -177,7 +177,7 @@ spec:
           # Pod starts but NEVER becomes Ready — stuck in 0/1 state
           readinessProbe:
             httpGet:
-              path: /health        # ← WRONG PATH — service exposes /healthz
+              path: /healthz      # ← WRONG PATH — service exposes /healthz
               port: 3003
             initialDelaySeconds: 10
             periodSeconds: 10
