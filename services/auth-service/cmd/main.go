@@ -1,16 +1,21 @@
 // NimbusCloud Auth Service v2.4.1
 // JWT token issuance and session management
 // ⚠️ NOTE: DB_PASSWORD must be sourced from AWS Secrets Manager
-//          The .env file in this directory has a hardcoded value — SEE SECURITY FINDING
+//
+//	The .env file in this directory has a hardcoded value — SEE SECURITY FINDING
 package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/prometheus/client_golang/prometheus"
@@ -42,6 +47,32 @@ var (
 func init() {
 	prometheus.MustRegister(httpRequests, httpDuration, tokenIssued)
 }
+func getDBPassword(ctx context.Context) (string, error) {
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		return "", fmt.Errorf("unable to load AWS configuration: %w", err)
+	}
+
+	client := secretsmanager.NewFromConfig(cfg)
+
+	secretName := os.Getenv("DB_SECRET_NAME")
+	if secretName == "" {
+		return "", fmt.Errorf("DB_SECRET_NAME is not set")
+	}
+
+	result, err := client.GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{
+		SecretId: aws.String(secretName),
+	})
+	if err != nil {
+		return "", fmt.Errorf("unable to retrieve database password from Secrets Manager: %w", err)
+	}
+
+	if result.SecretString == nil {
+		return "", fmt.Errorf("database secret has no SecretString")
+	}
+
+	return *result.SecretString, nil
+}
 
 type TokenRequest struct {
 	UserID   string `json:"user_id" binding:"required"`
@@ -63,7 +94,18 @@ func main() {
 	if jwtSecret == "" {
 		log.Fatal("JWT_SECRET not set — check Secrets Manager configuration")
 	}
+	ctx := context.Background()
 
+	dbPassword, err := getDBPassword(ctx)
+	if err != nil {
+		log.Fatalf("failed to load DB_PASSWORD from AWS Secrets Manager: %v", err)
+	}
+
+	if dbPassword == "" {
+		log.Fatal("DB_PASSWORD retrieved from AWS Secrets Manager is empty")
+	}
+
+	log.Println("DB_PASSWORD successfully loaded from AWS Secrets Manager")
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	r.Use(gin.Recovery())

@@ -17,7 +17,7 @@ resource "aws_s3_bucket" "assets" {
 # This must be removed and replaced with private + bucket policy
 resource "aws_s3_bucket_acl" "assets_acl" {
   bucket = aws_s3_bucket.assets.id
-  acl    = "public-read"    # WRONG — must be "private"
+  acl    = "private"    # WRONG — must be "private"
 }
 
 # Versioning — enabled (good)
@@ -40,13 +40,13 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "assets" {
 }
 
 # ⚠️ PUBLIC ACCESS BLOCK IS DISABLED — must be enabled
-# resource "aws_s3_bucket_public_access_block" "assets" {
-#   bucket                  = aws_s3_bucket.assets.id
-#   block_public_acls       = true
-#   block_public_policy     = true
-#   ignore_public_acls      = true
-#   restrict_public_buckets = true
-# }
+resource "aws_s3_bucket_public_access_block" "assets" {
+  bucket                  = aws_s3_bucket.assets.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
 
 # Terraform state bucket (separate — do not modify)
 resource "aws_s3_bucket" "terraform_state" {
