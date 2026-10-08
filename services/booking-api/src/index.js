@@ -5,7 +5,7 @@
  */
 const express = require('express');
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand } = require('@aws-sdk/lib-dynamodb');
+const { DynamoDBDocumentClient, PutCommand, GetCommand } = require('@aws-sdk/lib-dynamodb');
 const client = require('prom-client');
 const winston = require('winston');
 const { v4: uuidv4 } = require('uuid');

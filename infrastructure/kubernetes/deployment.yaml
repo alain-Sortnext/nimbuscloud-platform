@@ -161,18 +161,20 @@ spec:
           ports:
             - containerPort: 3003
           env:
-            - name: PORT
-              value: "3003"
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: nimbuscloud-secrets
-                  key: JWT_SECRET
-            - name: AWS_REGION
-              valueFrom:
-                configMapKeyRef:
-                  name: nimbuscloud-config
-                  key: AWS_REGION
+          - name: PORT
+            value: "3003"
+          - name: JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: nimbuscloud-secrets
+                key: JWT_SECRET
+          - name: DB_SECRET_NAME
+            value: "nimbuscloud/auth-service/DB_PASSWORD"
+          - name: AWS_REGION
+            valueFrom:
+              configMapKeyRef:
+                name: nimbuscloud-config
+                key: AWS_REGION
           # ⚠️ BUG: readiness probe hits /health but service exposes /healthz
           # Pod starts but NEVER becomes Ready — stuck in 0/1 state
           readinessProbe:

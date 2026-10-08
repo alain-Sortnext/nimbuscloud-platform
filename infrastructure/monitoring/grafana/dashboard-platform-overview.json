@@ -1,43 +1,474 @@
-{
-  "__inputs": [],
-  "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "10.0.0"
-    },
-    {
-      "type": "datasource",
-      "id": "prometheus",
-      "name": "Prometheus",
-      "version": "1.0.0"
-    }
-  ],
-  "annotations": {
-    "list": []
-  },
-  "description": "NimbusCloud Platform Overview — INCOMPLETE — candidate must add panels",
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
-  "id": null,
-  "links": [],
-  "panels": [],
-  "refresh": "30s",
-  "schemaVersion": 38,
-  "tags": ["nimbuscloud", "platform", "overview"],
-  "templating": {
-    "list": []
-  },
-  "time": {
-    "from": "now-1h",
-    "to": "now"
-  },
-  "timepicker": {},
-  "timezone": "Europe/London",
-  "title": "NimbusCloud Platform Overview",
-  "uid": "nimbuscloud-overview",
-  "version": 0,
-  "__comment": "INCOMPLETE: panels array is empty. Candidate must add: API latency panel, error rate panel, pod health panel, SQS queue depth panel, DynamoDB read/write panel. See Phase 5 instructions."
+﻿{
+    "time":  {
+                 "to":  "now",
+                 "from":  "now-1h"
+             },
+    "timezone":  "Europe/London",
+    "version":  1,
+    "timepicker":  {
+
+                   },
+    "title":  "NimbusCloud Platform Overview",
+    "graphTooltip":  1,
+    "liveNow":  false,
+    "annotations":  {
+                        "list":  [
+
+                                 ]
+                    },
+    "links":  [
+
+              ],
+    "panels":  [
+                   {
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "reqps"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "id":  1,
+                       "gridPos":  {
+                                       "y":  0,
+                                       "w":  8,
+                                       "x":  0,
+                                       "h":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "title":  "booking-api - Request Rate",
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "requests/sec",
+                                           "expr":  "sum(rate(booking_api_http_duration_seconds_count{job=\"booking-api\"}[5m]))",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "type":  "timeseries",
+                       "options":  {
+                                       "legend":  {
+                                                      "placement":  "bottom",
+                                                      "displayMode":  "list"
+                                                  }
+                                   }
+                   },
+                   {
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "percent"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "id":  2,
+                       "gridPos":  {
+                                       "y":  0,
+                                       "w":  8,
+                                       "x":  8,
+                                       "h":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "title":  "booking-api - Error Rate",
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "error %",
+                                           "expr":  "100 * sum(rate(booking_api_http_duration_seconds_count{job=\"booking-api\",status=~\"5..\"}[5m])) / clamp_min(sum(rate(booking_api_http_duration_seconds_count{job=\"booking-api\"}[5m])), 0.001)",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "type":  "timeseries",
+                       "options":  {
+                                       "legend":  {
+                                                      "placement":  "bottom",
+                                                      "displayMode":  "list"
+                                                  }
+                                   }
+                   },
+                   {
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "s"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "id":  3,
+                       "gridPos":  {
+                                       "y":  0,
+                                       "w":  8,
+                                       "x":  16,
+                                       "h":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "title":  "booking-api - P99 Latency",
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "P99",
+                                           "expr":  "histogram_quantile(0.99, sum by (le) (rate(booking_api_http_duration_seconds_bucket{job=\"booking-api\"}[5m])))",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "type":  "timeseries",
+                       "options":  {
+                                       "legend":  {
+                                                      "placement":  "bottom",
+                                                      "displayMode":  "list"
+                                                  }
+                                   }
+                   },
+                   {
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "reqps"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "id":  4,
+                       "gridPos":  {
+                                       "y":  8,
+                                       "w":  8,
+                                       "x":  0,
+                                       "h":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "title":  "payment-api - Request Rate",
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "requests/sec",
+                                           "expr":  "sum(rate(payment_api_requests_total{job=\"payment-api\"}[5m]))",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "type":  "timeseries",
+                       "options":  {
+                                       "legend":  {
+                                                      "placement":  "bottom",
+                                                      "displayMode":  "list"
+                                                  }
+                                   }
+                   },
+                   {
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "percent"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "id":  5,
+                       "gridPos":  {
+                                       "y":  8,
+                                       "w":  8,
+                                       "x":  8,
+                                       "h":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "title":  "payment-api - Error Rate",
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "error %",
+                                           "expr":  "100 * sum(rate(payment_api_requests_total{job=\"payment-api\",status=~\"5..\"}[5m])) / clamp_min(sum(rate(payment_api_requests_total{job=\"payment-api\"}[5m])), 0.001)",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "type":  "timeseries",
+                       "options":  {
+                                       "legend":  {
+                                                      "placement":  "bottom",
+                                                      "displayMode":  "list"
+                                                  }
+                                   }
+                   },
+                   {
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "s"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "id":  6,
+                       "gridPos":  {
+                                       "y":  8,
+                                       "w":  8,
+                                       "x":  16,
+                                       "h":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "title":  "payment-api - P99 Latency",
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "P99",
+                                           "expr":  "histogram_quantile(0.99, sum by (le) (rate(payment_api_duration_seconds_bucket{job=\"payment-api\"}[5m])))",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "type":  "timeseries",
+                       "options":  {
+                                       "legend":  {
+                                                      "placement":  "bottom",
+                                                      "displayMode":  "list"
+                                                  }
+                                   }
+                   },
+                   {
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "reqps"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "id":  7,
+                       "gridPos":  {
+                                       "y":  16,
+                                       "w":  8,
+                                       "x":  0,
+                                       "h":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "title":  "auth-service - Request Rate",
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "requests/sec",
+                                           "expr":  "sum(rate(auth_service_requests_total{job=\"auth-service\"}[5m]))",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "type":  "timeseries",
+                       "options":  {
+                                       "legend":  {
+                                                      "placement":  "bottom",
+                                                      "displayMode":  "list"
+                                                  }
+                                   }
+                   },
+                   {
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "percent"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "id":  8,
+                       "gridPos":  {
+                                       "y":  16,
+                                       "w":  8,
+                                       "x":  8,
+                                       "h":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "title":  "auth-service - Error Rate",
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "error %",
+                                           "expr":  "100 * sum(rate(auth_service_requests_total{job=\"auth-service\",status=~\"5..\"}[5m])) / clamp_min(sum(rate(auth_service_requests_total{job=\"auth-service\"}[5m])), 0.001)",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "type":  "timeseries",
+                       "options":  {
+                                       "legend":  {
+                                                      "placement":  "bottom",
+                                                      "displayMode":  "list"
+                                                  }
+                                   }
+                   },
+                   {
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "s"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "id":  9,
+                       "gridPos":  {
+                                       "y":  16,
+                                       "w":  8,
+                                       "x":  16,
+                                       "h":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "title":  "auth-service - P99 Latency",
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "P99",
+                                           "expr":  "histogram_quantile(0.99, sum by (le) (rate(auth_service_duration_seconds_bucket{job=\"auth-service\"}[5m])))",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "type":  "timeseries",
+                       "options":  {
+                                       "legend":  {
+                                                      "placement":  "bottom",
+                                                      "displayMode":  "list"
+                                                  }
+                                   }
+                   },
+                   {
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "reqps"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "id":  10,
+                       "gridPos":  {
+                                       "y":  24,
+                                       "w":  8,
+                                       "x":  0,
+                                       "h":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "title":  "notification-service - Request Rate",
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "requests/sec",
+                                           "expr":  "sum(rate(notification_service_http_requests_total{job=\"notification-service\"}[5m]))",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "type":  "timeseries",
+                       "options":  {
+                                       "legend":  {
+                                                      "placement":  "bottom",
+                                                      "displayMode":  "list"
+                                                  }
+                                   }
+                   },
+                   {
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "percent"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "id":  11,
+                       "gridPos":  {
+                                       "y":  24,
+                                       "w":  8,
+                                       "x":  8,
+                                       "h":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "title":  "notification-service - Error Rate",
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "error %",
+                                           "expr":  "100 * sum(rate(notification_service_http_requests_total{job=\"notification-service\",status=~\"5..\"}[5m])) / clamp_min(sum(rate(notification_service_http_requests_total{job=\"notification-service\"}[5m])), 0.001)",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "type":  "timeseries",
+                       "options":  {
+                                       "legend":  {
+                                                      "placement":  "bottom",
+                                                      "displayMode":  "list"
+                                                  }
+                                   }
+                   },
+                   {
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "s"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "id":  12,
+                       "gridPos":  {
+                                       "y":  24,
+                                       "w":  8,
+                                       "x":  16,
+                                       "h":  8
+                                   },
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "prometheus"
+                                      },
+                       "title":  "notification-service - P99 Latency",
+                       "targets":  [
+                                       {
+                                           "legendFormat":  "P99",
+                                           "expr":  "histogram_quantile(0.99, sum by (le) (rate(notification_service_http_duration_seconds_bucket{job=\"notification-service\"}[5m])))",
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "type":  "timeseries",
+                       "options":  {
+                                       "legend":  {
+                                                      "placement":  "bottom",
+                                                      "displayMode":  "list"
+                                                  }
+                                   }
+                   }
+               ],
+    "refresh":  "15s",
+    "uid":  "nimbuscloud-overview",
+    "tags":  [
+                 "nimbuscloud",
+                 "platform",
+                 "overview",
+                 "phase-6",
+                 "monitoring"
+             ],
+    "schemaVersion":  38,
+    "editable":  true,
+    "templating":  {
+                       "list":  [
+
+                                ]
+                   },
+    "fiscalYearStartMonth":  0,
+    "description":  "Phase 6 monitoring dashboard covering request rate, error rate and P99 latency for booking-api, payment-api, auth-service and notification-service."
 }

@@ -30,3 +30,7 @@ terraform.tfstate.d/
 # Build artifacts
 dist/
 build/
+
+# Environment secrets
+.env
+**/.env

@@ -1,7 +1,6 @@
-# NimbusCloud Platform — Prometheus Configuration
-# ⚠️ BUG: scrape_configs is empty — Prometheus collects no metrics
-#    All services expose /metrics on their respective ports
-#    Candidate must add scrape targets for all four services
+﻿# NimbusCloud Platform - Prometheus Configuration
+# Phase 6 - Monitoring Platform
+
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
@@ -10,29 +9,40 @@ global:
     region: 'eu-west-2'
     platform: 'nimbuscloud'
 
-# Alertmanager configuration
 alerting:
   alertmanagers:
     - static_configs:
-        - targets:
-          # - alertmanager:9093  # Not yet configured
+        - targets: []
 
-# Rules files — none loaded yet
-rule_files:
-  # - "alerts.yml"   # Candidate must create this
+rule_files: []
 
-# ⚠️ BUG: No scrape configs — Prometheus has no targets
-# Candidate must add:
-#   - booking-api on port 3001
-#   - payment-api on port 3002
-#   - auth-service on port 3003
-#   - notification-service on port 3004
-#   - prometheus self-scrape on port 9090
 scrape_configs:
-  []
-  # Example of what a correct scrape config looks like:
-  # - job_name: 'booking-api'
-  #   static_configs:
-  #     - targets: ['booking-api:3001']
-  #   metrics_path: '/metrics'
-  #   scrape_interval: 15s
+  - job_name: 'booking-api'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['booking-api:3001']
+
+  - job_name: 'payment-api'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['payment-api:3002']
+
+  - job_name: 'auth-service'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['auth-service:3003']
+
+  - job_name: 'notification-service'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['notification-service:3004']
+
+  - job_name: 'prometheus'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['localhost:9090']
